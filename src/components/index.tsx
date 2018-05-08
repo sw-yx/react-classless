@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 /* tslint:disable:interface-name variable-name jsdoc-format */
 
@@ -14,6 +14,7 @@ export interface DidUpdateProps extends RProps {
 export interface ShouldUpdateProps extends PropsAndState {
   nextProps: object;
   nextState: object;
+  forceUpdate: (a?: {}) => {} | void;
 }
 export interface RProps extends PropsAndState {
   forceUpdate: (a?: {}) => {} | void;
@@ -48,7 +49,8 @@ export class Component extends React.Component<Props> {
         nextProps,
         nextState,
         props: this.props,
-        state: this.state
+        state: this.state,
+        forceUpdate: this.forceUpdate // https://github.com/reactions/component/issues/16
       });
     } else {
       return true;
@@ -78,7 +80,7 @@ export class Component extends React.Component<Props> {
   public render() {
     const { children, render } = this.props;
     return children
-      ? typeof children === 'function'
+      ? typeof children === "function"
         ? children(this.getArgs())
         : children
       : render
@@ -86,11 +88,17 @@ export class Component extends React.Component<Props> {
         : null;
   }
 
-  private _setState = (updater: {}, cb?: () => {}) => this.setState(updater, cb);
+  private _setState = (updater: {}, cb?: () => {}) =>
+    this.setState(updater, cb);
   private _forceUpdate = (cb?: () => {}) => this.forceUpdate(cb);
 
   private getArgs(): RProps {
-    const { state, props, _setState: setState, _forceUpdate: forceUpdate } = this;
+    const {
+      state,
+      props,
+      _setState: setState,
+      _forceUpdate: forceUpdate
+    } = this;
     return {
       forceUpdate,
       props,
